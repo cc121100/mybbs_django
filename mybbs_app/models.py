@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib import admin
 from uuidfield import UUIDField
-from compositekey import db
+#from compositekey import db
 
 # Create your models here.
 
