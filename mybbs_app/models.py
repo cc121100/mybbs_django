@@ -75,6 +75,7 @@ class SourcePage(BaseModel):
     domainName = models.CharField(max_length=255, db_column = 'domain_name')
     md5Code = models.CharField(max_length=255, db_column = 'md5_code', blank = True,null = True)
     sampleSourcePage = models.ForeignKey('SourcePage',db_column='sample_sp_id',blank = True,null = True)
+    #sampleSourcePage = models.OneToOneField('SourcePage',db_column='sample_sp_id',blank = True,null = True)
     userSettings = models.ManyToManyField('UserSetting',through='UserSettingToSourcePage')
     
     class Meta:
@@ -125,6 +126,18 @@ class UserSettingInline(admin.TabularInline):
     model = UserSettingToSourcePage
     extra = 1
     
+class SourcePageInline(admin.TabularInline):
+    model = SourcePage
+    extra = 1
+    
+class SourcePageFilterInline(admin.TabularInline):
+    model = SourcePageFilter
+    extra = 0
+
+class SourcePageFilterDetailInline(admin.TabularInline):
+    model = SourcePageFilterDetail
+    extra = 0
+    
 #admin    
 class FilterAdmin(admin.ModelAdmin):
     list_display = ('filterName','filterClassName','filterClassParams','paramType','paramNum','setParamMethodName')
@@ -137,16 +150,19 @@ class UserSettingAdmin(admin.ModelAdmin):
     inlines = (UserSettingInline,)
     
 class SourcePageAdmin(admin.ModelAdmin):
-    list_display = ('targetPageName','targetPageUrl','category','status','domainName','md5Code')
+    list_display = ('targetPageName','targetPageUrl','category','status','domainName','md5Code','sampleSourcePage')
     search_fields = ('targetPageName','targetPageUrl')
-    fields  = ('targetPageName','targetPageUrl','category','status','domainName')
-    inlines = (UserSettingInline,)
+    fields  = ('targetPageName','targetPageUrl','category','status','domainName','sampleSourcePage')
+    inlines = (SourcePageFilterInline, UserSettingInline)
     #fields  = ('name','category')
+    #exclude = ('version','createdBy','updatedBy')
+    
     
 class SourcePageFilterAdmin(admin.ModelAdmin):
     list_display = ('sourcePageFilterName','sourcePage','seqNum')
     search_fields = ('sourcePageFilterName','sourcePage','seqNum')
     fields = ('sourcePageFilterName','sourcePage','seqNum')
+    inlines = (SourcePageFilterDetailInline, )
 
 class SourcePageFilterDetailAdmin(admin.ModelAdmin):
     list_display = ('sourcePageFilter','filter','paramValue1','paramValue2','parentNode','subNum')
