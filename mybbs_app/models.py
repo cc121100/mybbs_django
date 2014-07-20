@@ -23,6 +23,10 @@ SOURCE_PAGE_CATEGORY = (
     ('T','Target URL'),                     
     ('N','Navigate URL'),                     
 )
+USER_SETTING_CATEGORY = (
+    ('D','Default Setting'),                     
+    ('U','User Setting'),                     
+)
 
 
 
@@ -56,7 +60,7 @@ class Filter(BaseModel):
 class UserSetting(BaseModel):
     id = UUIDField(primary_key=True,auto = True, db_column = 'id')
     name = models.CharField(max_length=255, db_column = 'name')
-    category = models.CharField(max_length=255, db_column = 'category')
+    category = models.CharField(max_length=255, db_column = 'category', choices = USER_SETTING_CATEGORY, default='D')
     #sourcePages = models.ManyToManyField('SourcePage', db_table='tbl_setting_to_source_page',related_name='setting_id')
     
     class Meta:
@@ -74,7 +78,10 @@ class SourcePage(BaseModel):
     status = models.CharField(max_length=1, db_column = 'status',choices=STATUS_CHOICES, default='A')
     domainName = models.CharField(max_length=255, db_column = 'domain_name')
     md5Code = models.CharField(max_length=255, db_column = 'md5_code', blank = True,null = True)
-    sampleSourcePage = models.ForeignKey('SourcePage',db_column='sample_sp_id',blank = True,null = True)
+    sampleSourcePage = models.ForeignKey('SourcePageSample',related_name='sample_sp_id', db_column='sp_sample_id',blank = True,null = True)
+    uniqueLabel = models.CharField(max_length=255, db_column = 'unique_label', blank = True,null = True)
+    subSPDomainName = models.CharField(max_length=255, db_column = 'sub_sp_domain_name', blank = True,null = True)
+    sampleSPIdForNaviSP = models.ForeignKey('SourcePageSample',related_name='sample_sp_id_for_navi_sp',db_column='sample_sp_id_for_navi_sp',blank = True,null = True)
     #sampleSourcePage = models.OneToOneField('SourcePage',db_column='sample_sp_id',blank = True,null = True)
     userSettings = models.ManyToManyField('UserSetting',through='UserSettingToSourcePage')
     
@@ -84,9 +91,19 @@ class SourcePage(BaseModel):
     def __unicode__(self):
         return self.targetPageName
     
+class SourcePageSample(BaseModel):
+    id = UUIDField(primary_key=True,auto = True, db_column = 'id')
+    sampleName = models.CharField(max_length=255, db_column = 'sample_name')
+    
+    class Meta:
+        db_table = 'tbl_source_page_sample'
+        
+    def __unicode__(self):
+        return self.sampleName
+    
 class SourcePageFilter(BaseModel):
     id = UUIDField(primary_key=True,auto = True, db_column = 'id')
-    sourcePage = models.ForeignKey('SourcePage', db_column='source_page_id',blank = True,null = True)
+    sourcePageSample = models.ForeignKey('SourcePageSample', db_column='sp_sample_id',blank = True,null = True)
     sourcePageFilterName = models.CharField(max_length=255,db_column='source_page_filter_name')
     seqNum = models.IntegerField(db_column='seq_num')
     
@@ -130,6 +147,10 @@ class SourcePageInline(admin.TabularInline):
     model = SourcePage
     extra = 1
     
+class SourcePageSampleInline(admin.TabularInline):
+    model = SourcePageSample
+    extra = 1
+    
 class SourcePageFilterInline(admin.TabularInline):
     model = SourcePageFilter
     extra = 0
@@ -150,18 +171,24 @@ class UserSettingAdmin(admin.ModelAdmin):
     inlines = (UserSettingInline,)
     
 class SourcePageAdmin(admin.ModelAdmin):
-    list_display = ('targetPageName','targetPageUrl','category','status','domainName','md5Code','sampleSourcePage')
-    search_fields = ('targetPageName','targetPageUrl')
-    fields  = ('targetPageName','targetPageUrl','category','status','domainName','sampleSourcePage')
-    inlines = (SourcePageFilterInline, UserSettingInline)
+    list_display = ('targetPageName','targetPageUrl', 'uniqueLabel', 'category','status','domainName', 'subSPDomainName','md5Code','sampleSourcePage','sampleSPIdForNaviSP')
+    search_fields = ('targetPageName','targetPageUrl','uniqueLabel')
+    fields  = ('targetPageName','targetPageUrl','uniqueLabel','category','status','domainName','subSPDomainName','md5Code','sampleSourcePage','sampleSPIdForNaviSP')
+    inlines = ( UserSettingInline,)
     #fields  = ('name','category')
     #exclude = ('version','createdBy','updatedBy')
     
+class SourcePageSampleAdmin(admin.ModelAdmin):
+    list_display = ('sampleName',)
+    search_fields = ('sampleName',)
+    fields  = ('sampleName',)
+    inlines = (SourcePageFilterInline,)
+    
     
 class SourcePageFilterAdmin(admin.ModelAdmin):
-    list_display = ('sourcePageFilterName','sourcePage','seqNum')
-    search_fields = ('sourcePageFilterName','sourcePage','seqNum')
-    fields = ('sourcePageFilterName','sourcePage','seqNum')
+    list_display = ('sourcePageFilterName','sourcePageSample','seqNum')
+    search_fields = ('sourcePageFilterName','sourcePageSample','seqNum')
+    fields = ('sourcePageFilterName','sourcePageSample','seqNum')
     inlines = (SourcePageFilterDetailInline, )
 
 class SourcePageFilterDetailAdmin(admin.ModelAdmin):
@@ -173,5 +200,6 @@ class SourcePageFilterDetailAdmin(admin.ModelAdmin):
 admin.site.register(Filter, FilterAdmin)
 admin.site.register(UserSetting, UserSettingAdmin)
 admin.site.register(SourcePage, SourcePageAdmin)
+admin.site.register(SourcePageSample, SourcePageSampleAdmin)
 admin.site.register(SourcePageFilter, SourcePageFilterAdmin)
 admin.site.register(SourcePageFilterDetail, SourcePageFilterDetailAdmin)
