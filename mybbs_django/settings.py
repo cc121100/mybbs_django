@@ -20,11 +20,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'l@mh2cah@lu9u3(@@gszm-6u-6(5hr+o-@+m5@%u4tq%b))rs$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+#DEBUG = True
 DEBUG = True
 
-TEMPLATE_DEBUG = True
+#TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -84,4 +86,17 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_URL = '/static/'
+import os
+HERE = os.path.dirname(os.path.dirname(__file__))
+
+MEDIA_ROOT = os.path.join( HERE, "D:/cc/study/py_workspace1/media").replace('\\', '/')
+MEDIA_URL = "/media/"
+
+STATIC_ROOT = os.path.join(HERE, "D:/cc/study/py_workspace1/static").replace('\\', '/')
+STATIC_URL = "/static/"
+
+STATICFILES_DIRS = ( os.path.join(HERE, "../mybbs_app/static/").replace('\\', '/'), ) 
+
+TEMPLATE_DIRS = (
+    '../templates',
+) 

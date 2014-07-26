@@ -1,7 +1,12 @@
 from django.conf.urls import patterns, include, url
-
+from mybbs_app.views import *
 from django.contrib import admin
 admin.autodiscover()
+
+from django.conf.urls.static import static
+from django.conf import settings
+
+
 
 urlpatterns = patterns('',
     # Examples:
@@ -9,4 +14,10 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^index/$', index_view),
+    url(r'^list/default/$', default_list_view),
 )
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,0 +1,178 @@
+{% extends "base.html" %}  
+{% block bbslist %}  
+<section id="list_sec" class="single-page scrollblock">
+  <div class="container">
+    <div class="align" >
+    	
+    </div>
+    <br/>
+    <div class="row-fluid">
+    <div class="span4" id="div_list1">
+    	1
+    </div>
+    <div class="span4" id="div_list2">
+    	2
+    </div>
+    <div class="span4" id="div_list3">
+    	3
+    </div>
+    </div>
+	<!-- <div class="row" id="div_list">
+	  
+	</div> -->
+	
+		<a href="#" class="btn btn-large">Go to our blog</a> 
+   </div>
+</section>
+    <hr>
+    
+ <script type="text/javascript" charset="utf-8">
+ 
+ var pageSize = 8;
+
+ $(document).ready(function(){
+  $.ajax({
+         type:"GET" ,
+         url:"/list/default/",
+         //data:"email=" + email ,
+         cache: false,
+         success: function(result){
+             
+             //clean div_list
+             $("#div_list1").html('');
+             $("#div_list2").html('');
+             $("#div_list3").html('');
+             
+             generateList(result);
+             
+         },
+         error:function(result){
+      	   alert("error");
+         }
+   });
+  	
+ });
+ 
+function generateList(result){
+	var bbss = eval('(' + result + ')');
+    $.each(bbss,function(i,bbs){
+   	  
+  	   var links = bbs.links.split('|_|');
+      var totalp = 0;
+  	   if(links.length % pageSize == 0 ){
+  		 totalp = Math.floor((links.length / pageSize));
+  	   }else{
+  		 totalp = Math.floor((links.length / pageSize) + 1);
+  	   }
+ 	   //alert(bbs.name);
+ 	   var str = '';
+ 	   str += "<br/><div class='row'>";
+ 	   str = str + "<article class='span11 post'>"
+   	   	 + "<div class='inside'>"
+   	   	 + "<p class='bbs-title'><a href='" + bbs.url + "' target='_blank'> <img class='img-rounded' src='/media/" + bbs.logo + "' alt=''/></a>&nbsp;&nbsp;" + bbs.name + "<p>"
+  		 + "<div class='entry-content' id='div_list_" + i + "' curp='1' totalp='" + totalp + "'>";
+ 	   
+ 	   for(var j = 1;j <= totalp; j++ ){
+ 		 if(j == 1){
+     		 str = str + "<table class='table' id='tb_" + i + "_" + j + "'>";
+ 		 }else{
+     		 str = str + "<table class='table' id='tb_" + i + "_" + j + "' style='display:none;'>";
+ 		 }
+ 		 var from = (j-1) * pageSize;
+ 		 var to;
+ 		 if(j == totalp){
+ 			to = links.length - 1;
+ 		 }else{
+ 			to = j * pageSize;
+ 		 }
+ 		 for(var k = from; k < to; k++){
+ 			 str = str + "<tr><td>"
+ 			           + links[k]
+	   	               + "</td></tr>";
+ 		 }
+ 		 str = str + "</table>";
+ 	   }
+ 	   
+ 	   str = str + "<div class='pagination pagination-right'>"
+ 	   			 + "<ul>"
+ 	   			 + "<li class=''><a id='pre_" + i + "' class='btn_pre' onclick='previousClick(this.id);'>前一页</a></li>"
+ 	   			 + "<li class=''><a id='next_" + i + "' class='btn_next' onclick='nextClick(this.id);'>后一页</a></li>"
+ 	   			 + "</ul>"
+ 	   			 + "</div>";
+ 	   str = str + "</div>"
+		   	 + "</div>"
+		   	 + "</article>";
+		   	 + "</div>";
+	   var content = '';
+	   if((i+1) % 3 == 1 ){
+		   content = $("#div_list1").html();
+		   $("#div_list1").html(content + str);
+	   }else if((i+1) % 3 == 2){
+		   content = $("#div_list2").html();
+		   $("#div_list2").html(content + str);
+	   }else if((i+1) % 3 == 0){
+		   content = $("#div_list3").html();
+		   $("#div_list3").html(content + str);
+	   }
+    });
+}
+ 
+ function previousClick(id){
+	 var div_id = id.split('_')[1];
+	 var div_list_id = 'div_list_' + div_id;
+	 var curp ;
+	 var totalp;
+	 try{
+		 curp = parseInt($("#" + div_list_id).attr("curp")); 
+		 totalp = parseInt($("#" + div_list_id).attr("totalp")); 
+	 }catch(e){
+		 curp = 1;
+		 totalp = 1;
+	 }
+	 if(curp <= 1){
+		 
+	 }else{
+		// hide current table
+		 $("#tb_" + div_id + "_" + curp).hide();
+		 
+		 //show previous table
+		 curp -= 1;
+		 $("#tb_" + div_id + "_" + curp).show();
+		 
+		 //update div_list's attr(curp)
+		 $("#" + div_list_id).attr("curp",curp);
+	 }
+ }
+ 
+function nextClick(id){
+	 var div_id = id.split('_')[1];
+	 var div_list_id = 'div_list_' + div_id;
+	 var curp ;
+	 var totalp;
+	 try{
+		 curp = parseInt($("#" + div_list_id).attr("curp")); 
+		 totalp = parseInt($("#" + div_list_id).attr("totalp")); 
+	 }catch(e){
+		 curp = 1;
+		 totalp = 1;
+	 }
+	 if(curp >= totalp){
+		 
+	 }else{
+		// hide current table
+		 $("#tb_" + div_id + "_" + curp).hide();
+		 
+		 //show next table
+		 curp += 1;
+		 $("#tb_" + div_id + "_" + curp).show();
+		 
+		 //update div_list's attr(curp)
+		 $("#" + div_list_id).attr("curp",curp);
+	 }
+}
+ 
+</script>
+{% endblock %}
+
+
+

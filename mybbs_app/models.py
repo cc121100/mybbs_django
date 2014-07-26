@@ -62,6 +62,7 @@ class UserSetting(BaseModel):
     name = models.CharField(max_length=255, db_column = 'name')
     category = models.CharField(max_length=255, db_column = 'category', choices = USER_SETTING_CATEGORY, default='D')
     #sourcePages = models.ManyToManyField('SourcePage', db_table='tbl_setting_to_source_page',related_name='setting_id')
+    sourcePages = models.ManyToManyField('SourcePage',through='UserSettingToSourcePage')
     
     class Meta:
         db_table = 'tbl_user_setting'
@@ -94,6 +95,7 @@ class SourcePage(BaseModel):
 class SourcePageSample(BaseModel):
     id = UUIDField(primary_key=True,auto = True, db_column = 'id')
     sampleName = models.CharField(max_length=255, db_column = 'sample_name')
+    logo = models.ImageField(upload_to='logos/',max_length=255,blank = True,null = True)
     
     class Meta:
         db_table = 'tbl_source_page_sample'
@@ -179,9 +181,9 @@ class SourcePageAdmin(admin.ModelAdmin):
     #exclude = ('version','createdBy','updatedBy')
     
 class SourcePageSampleAdmin(admin.ModelAdmin):
-    list_display = ('sampleName',)
+    list_display = ('sampleName','logo')
     search_fields = ('sampleName',)
-    fields  = ('sampleName',)
+    fields  = ('sampleName','logo')
     inlines = (SourcePageFilterInline,)
     
     
