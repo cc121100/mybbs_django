@@ -96,12 +96,23 @@ class SourcePageSample(BaseModel):
     id = UUIDField(primary_key=True,auto = True, db_column = 'id')
     sampleName = models.CharField(max_length=255, db_column = 'sample_name')
     logo = models.ImageField(upload_to='logos/',max_length=255,blank = True,null = True)
+    spCategoryId = models.ForeignKey('SourcePageCategory', db_column='sp_category_id',blank = True,null = True)
     
     class Meta:
         db_table = 'tbl_source_page_sample'
         
     def __unicode__(self):
         return self.sampleName
+    
+class SourcePageCategory(BaseModel):
+    id = UUIDField(primary_key=True,auto = True, db_column = 'id')
+    name = models.CharField(max_length=255, db_column = 'name')
+    
+    class Meta:
+        db_table = 'tbl_source_page_category'
+        
+    def __unicode__(self):
+        return self.name
     
 class SourcePageFilter(BaseModel):
     id = UUIDField(primary_key=True,auto = True, db_column = 'id')
@@ -153,6 +164,10 @@ class SourcePageSampleInline(admin.TabularInline):
     model = SourcePageSample
     extra = 1
     
+class SourcePageCategoryInline(admin.TabularInline):
+    model = SourcePageCategory
+    extra = 1
+    
 class SourcePageFilterInline(admin.TabularInline):
     model = SourcePageFilter
     extra = 0
@@ -181,10 +196,16 @@ class SourcePageAdmin(admin.ModelAdmin):
     #exclude = ('version','createdBy','updatedBy')
     
 class SourcePageSampleAdmin(admin.ModelAdmin):
-    list_display = ('sampleName','logo')
+    list_display = ('sampleName','logo','spCategoryId')
     search_fields = ('sampleName',)
-    fields  = ('sampleName','logo')
+    fields  = ('sampleName','logo','spCategoryId')
     inlines = (SourcePageFilterInline,)
+    
+class SourcePageCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    fields  = ('name',)
+    inlines = (SourcePageSampleInline,)
     
     
 class SourcePageFilterAdmin(admin.ModelAdmin):
@@ -203,5 +224,6 @@ admin.site.register(Filter, FilterAdmin)
 admin.site.register(UserSetting, UserSettingAdmin)
 admin.site.register(SourcePage, SourcePageAdmin)
 admin.site.register(SourcePageSample, SourcePageSampleAdmin)
+admin.site.register(SourcePageCategory, SourcePageCategoryAdmin)
 admin.site.register(SourcePageFilter, SourcePageFilterAdmin)
 admin.site.register(SourcePageFilterDetail, SourcePageFilterDetailAdmin)

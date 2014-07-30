@@ -5,6 +5,7 @@ admin.autodiscover()
 
 from django.conf.urls.static import static
 from django.conf import settings
+from mybbs_app.initapp import *
 
 
 
@@ -16,8 +17,11 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^index/$', index_view),
     url(r'^list/default/$', default_list_view),
+    url(r'^cateSP/$', category_sp_view),
 )
 
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+loadSPCategory()

@@ -8,20 +8,15 @@
     <br/>
     <div class="row-fluid">
     <div class="span4" id="div_list1">
-    	1
+    	
     </div>
     <div class="span4" id="div_list2">
-    	2
+    	
     </div>
     <div class="span4" id="div_list3">
-    	3
+    	
     </div>
     </div>
-	<!-- <div class="row" id="div_list">
-	  
-	</div> -->
-	
-		<a href="#" class="btn btn-large">Go to our blog</a> 
    </div>
 </section>
     <hr>
@@ -58,7 +53,7 @@ function generateList(result){
     $.each(bbss,function(i,bbs){
    	  
   	   var links = bbs.links.split('|_|');
-      var totalp = 0;
+       var totalp = 0;
   	   if(links.length % pageSize == 0 ){
   		 totalp = Math.floor((links.length / pageSize));
   	   }else{
@@ -159,7 +154,7 @@ function nextClick(id){
 	 if(curp >= totalp){
 		 
 	 }else{
-		// hide current table
+		 // hide current table
 		 $("#tb_" + div_id + "_" + curp).hide();
 		 
 		 //show next table
@@ -173,6 +168,3 @@ function nextClick(id){
  
 </script>
 {% endblock %}
-
-
-

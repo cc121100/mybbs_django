@@ -2,7 +2,7 @@
     <html lang="en">
     <head>
     <meta charset="utf-8">
-    <title>Legend - One Page Bootstrap Template</title>
+    <title>MyBBS - 我的论坛合集</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -29,7 +29,7 @@
           <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
     <!-- Favicon -->
-    <link rel="shortcut icon" href="/static/img/favicon.ico">
+   <!--  <link rel="shortcut icon" href="/static/img/favicon.ico"> -->
     <!-- JQuery -->
     <script type="text/javascript" src="/static/js/jquery.js"></script>
     <!-- Load ScrollTo -->
@@ -52,16 +52,20 @@
             <!-- Responsive Navbar Part 1: Button for triggering responsive navbar (not covered in tutorial). Include responsive CSS to utilize. -->
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
             <h1 class="brand"><a href="#top">My BBS</a></h1>
-            <!-- Responsive Navbar Part 2: Place all navbar contents you want collapsed withing .navbar-collapse.collapse. -->
-            <nav class="pull-right nav-collapse collapse">
-              <ul id="menu-main" class="nav">
-                <li><a title="portfolio" href="#portfolio">Portfolio</a></li>
-                <li><a title="services" href="#services">Services</a></li>
-                <li><a title="news" href="#news">News</a></li>
-                <li><a title="team" href="#team">Team</a></li>
-                <li><a title="contact" href="#contact">Contact</a></li>
-              </ul>
-            </nav>
+            <div class='nav-collapse collapse'>
+	            <nav class="pull-right nav-collapse collapse">
+	              <ul id="menu-main" class="nav">
+	                <li>
+	                	<input class="span3 search-query" style="margin-top: 10px;" type="text" placeholder="Search">
+	                </li>
+	                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+	                <li><a href="#selectSPDiv" role="button" data-toggle="modal" onclick="befShow('parDiv','subDiv');">定制论坛</a></li>
+	                <li><a title="" href="#">Todo2</a></li>
+	                <li><a title="" href="#">Todo3</a></li>
+	              </ul>
+	            </nav>
+            </div>
+            
           </div>
           <!-- /.container -->
         </div>
@@ -87,6 +91,41 @@
     <script type="text/javascript" src="/static/js/bootstrap.js"></script>
     <script type="text/javascript" src="/static/js/jquery.prettyPhoto.js"></script>
     <script type="text/javascript" src="/static/js/site.js"></script>
+    <script type="text/javascript" src="/static/script/bbslist.js"></script>
+    
+    <!-- Modal -->
+	<div id="selectSPDiv" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	    <h3 id="myModalLabel">论坛集合</h3>
+	  </div>
+	  <div class="modal-body">
+	    <div class="row-fluid" id="cateDiv">
+	    	<div class='span3' id="parDiv">
+	    	</div>
+	    	<div class='span9' id="subDiv">
+	    	</div>
+	    </div>
+	    
+	  </div>
+      <hr/>
+	  <div class="row-fluid" style="margin-left:20px;" id="selDiv">
+	    	<div><span style="font-size: medium;">我的论坛</span></div><br/>
+	    	<div>
+	    		<ul class="inline">
+				  <li ><a class='btn btn-warning'>aaaa</a></li>
+				  <li>1111sdsdsddsd111</li>
+				  <li>1111</li>
+				  <li>111asd1111</li>
+				  <li>11</li>
+				</ul>
+	    	</div>
+      </div>
+	  <div class="modal-footer">
+    	<button class="btn-small" data-dismiss="modal" aria-hidden="true">关闭</button>
+    	<button class="btn-small" onclick="alert('ss');">定制</button>
+	  </div>
+	</div>
     
     </body>
     </html>
