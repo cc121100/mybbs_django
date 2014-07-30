@@ -28,7 +28,7 @@ def default_list_view(request):
     sourcePages = us.sourcePages.all()
     jsons = []
     for sp in sourcePages:
-        #print 'sp id is %s' % sp.id
+        print 'sp id is %s' % sp.id
         url = URL_FILE_PREFIX + str(sp.id) + URL_FILE_SUFFIX
         linkStr = ''
         json = {}

@@ -1,13 +1,19 @@
 var isFirst = true;
 var spCateJsons;
 var selSPs;
+var dummySelSPJson = [
+						{"id":"4028819d474d2df401474d2e01440014","name":"简书 - 首页"},
+					  	{"id":"4028819d475166e9014751670e680000","name":"天涯 - 天涯杂谈"},
+					  	{"id":"4028819d474d2df401474d2e0111000c","name":"天涯 - 热帖"}
+					 ];
 
 
-function befShow(parDivId, subDivId){
+function befShow(parDivId, subDivId,selDivId){
 	if(isFirst){
 		initSPCate(parDivId,subDivId,initParAndSubLi);
 		
 		// 4. init sel li
+		initSelLi(selDivId);
 		
 		// 5. sel li bin click
 		
@@ -30,13 +36,9 @@ function initSPCate(parDivId, subDivId, initParAndSubLiCall){
         	initParAndSubLiCall(jsonList, parDivId, subDivId);
         },
         error:function(result){
-        	alert("error");
+        	alert("error when initSPCate");
         }
     });
-}
-
-function getOwnSP(){
-	
 }
 
 function initParAndSubLi(jsonList, parDivId, subDivId){
@@ -64,7 +66,7 @@ function initParAndSubLi(jsonList, parDivId, subDivId){
 			});
 			subLiStr += "</ul>";
 		});
-		
+
 		parLiStr += "</ul>";
 		$("#" + parDivId).html(parLiStr);
 		$("#" + subDivId).html(subLiStr);
@@ -76,15 +78,29 @@ function initParAndSubLi(jsonList, parDivId, subDivId){
 		
 		// 4. sub li bind click
 		$("a[id^='sub_']").each(function(){
-			$(this).bind("click",{id:$(this).attr('id')},bindSubLiClick);
+			$(this).bind("click",{ele:$(this)},bindSubLiClick);
 		});
 		
 	}
 	
 }
 
-function initSelLi(json){
-	
+function initSelLi(selDivId){
+
+	//TODO ajax get selSPs instead of dummy
+	var selStr = "";
+	selStr += "<ul class='inline' id='selUl'>";
+	$.each(dummySelSPJson,function(i,sp){
+		selStr = selStr + "<li ><a class='btn btn-warning' id='sel_" + i + "' uid='" + sp.id + "'>" + sp.name + "</a></li>";
+	});
+	selStr += "</ul>";
+	$("#" + selDivId).html(selStr);
+
+	//bind click for selli
+	$("a[id^='sel_']").each(function(){
+		$(this).bind("click",{ele:$(this)},bindSelLiClick);
+	});
+
 }
 function bindParLiClick(event){
 	var parId = event.data.id;
@@ -104,8 +120,58 @@ function bindParLiClick(event){
 }
 
 function bindSubLiClick(event){
+	var $sub = event.data.ele;
+	if($sub.attr('et') != 'e'){
+		selectOrDeSelectSP(dummySelSPJson, true, $sub, null, $("#selUl"));
+	}
 	
 }
-function bindSelLiClick(){
-	
+function bindSelLiClick(event){
+	var $del = event.data.ele;
+	selectOrDeSelectSP(dummySelSPJson, false, $("a[uid='" + $del.uid +"']"), $del, $("#selUl"));
+}
+
+function selectOrDeSelectSP(jsons,isSelect, $subSP, $selSP, $selUl){
+	if (isSelect) {
+		var isExsited = false;
+		// check if select sp is exsited in selSPJson
+		for(var i = 0; i < jsons.length; i++ ){
+			if ($subSP.attr('uid') == jsons[i].id) {
+				isExsited = true;
+				break;
+			}
+		}
+
+		if(!isExsited){
+			// add sp in selSPJson
+			var newSelSP = {"id":$subSP.attr('uid'),"name":$subSP.html()};
+			jsons.push(newSelSP);
+			// add <li><a> in selDIv ul
+			var newSelSPStr = "<li ><a class='btn btn-warning' uid='" + newSelSP.id + "'>" + newSelSP.name + "</a></li>"
+			var oriHtml = $selUl.html();
+			$selUl.html(oriHtml + newSelSPStr);
+
+			//bind click event for new selSP
+			$("a[uid='" + newSelSP.id + "']").live("click",{ele:$(this)},bindSelLiClick);
+
+			// change css
+			$subSP.attr('class','btn-small btn-warning sub');
+			$subSP.attr('et','e');
+		}
+	}else{
+		// remove sp in selSPJson
+		for(var i = 0; i < jsons.length; i++ ){
+			if ($selSP.attr('uid') == jsons[i].id) {
+				jsons.splice(i);
+				break;
+			}
+		}
+
+		// remove <li><a> in selDIv ul
+		$selSP.remove();
+
+		// change css
+		$subSP.attr('class','btn-small btn-link sub');
+		$subSP.attr('et','');
+	}
 }

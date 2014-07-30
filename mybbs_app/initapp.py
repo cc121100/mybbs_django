@@ -27,7 +27,7 @@ def loadSPCategory():
         SPCategoryJson['subs'] = subJsonList
         SPCategoryJsons.append(SPCategoryJson)
         
-    print SPCategoryJsons
+    #print SPCategoryJsons
     
         
             
