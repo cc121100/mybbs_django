@@ -1,30 +1,29 @@
 var isFirst = true;
 var spCateJsons;
 var selSPs;
-var dummySelSPJson = [
+/*var dummySelSPJson = [
 						{"id":"4028819d474d2df401474d2e01440014","name":"简书 - 首页"},
 					  	{"id":"4028819d475166e9014751670e680000","name":"天涯 - 天涯杂谈"},
 					  	{"id":"4028819d474d2df401474d2e0111000c","name":"天涯 - 热帖"}
-					 ];
+					 ];*/
+var dummySelSPJson = new Array();
 
 
 function befShow(parDivId, subDivId,selDivId){
 	if(isFirst){
-		initSPCate(parDivId,subDivId,initParAndSubLi);
+		ajaxSPCate(parDivId,subDivId,selDivId,initParAndSubLi);
 		
-		// 4. init sel li
-		initSelLi(selDivId);
-		
-		// 5. sel li bin click
-		
+		/*initSelLi(dummySelSPJson,selDivId);*/
 		
 		isFirst = false;
 	}else{
+		/*initParAndSubLiCall(spCateJsons, parDivId, subDivId);
+		initSelLi(dummySelSPJson,selDivId);*/
 		
 	}
 }
 
-function initSPCate(parDivId, subDivId, initParAndSubLiCall){
+function ajaxSPCate(parDivId, subDivId,selDivId, initParAndSubLiCall){
 	
 	// 1 get cate sp list
 	$.ajax({
@@ -33,7 +32,9 @@ function initSPCate(parDivId, subDivId, initParAndSubLiCall){
         cache: false,
         success: function(result){
         	jsonList=eval('('+result+')');
-        	initParAndSubLiCall(jsonList, parDivId, subDivId);
+        	spCateJsons = jsonList;
+        	initParAndSubLiCall(spCateJsons, parDivId, subDivId);
+        	initSelLi(dummySelSPJson,selDivId);
         },
         error:function(result){
         	alert("error when initSPCate");
@@ -62,7 +63,7 @@ function initParAndSubLi(jsonList, parDivId, subDivId){
 				subLiStr += "<ul class='inline' id='ul_" + i + "'>";
 			}
 			$.each(cateJson.subs,function(j,sub){
-				subLiStr = subLiStr + "<li style='width:150px;' ><a class='btn-small btn-link sub'id='sub_" + i + "_" + j + "' uid='" + sub.id + "'>" + sub.spName +"</a></li>";
+				subLiStr = subLiStr + "<li style='width:150px;' ><a class='btn-small btn-link sub'id='sub_" + sub.id + "'>" + sub.spName +"</a></li>";
 			});
 			subLiStr += "</ul>";
 		});
@@ -73,7 +74,7 @@ function initParAndSubLi(jsonList, parDivId, subDivId){
 		
 		// 3.par li bind click
 		$("a[id^='par_']").each(function(){
-			$(this).bind("click",{id:$(this).attr('id')},bindParLiClick);
+			$(this).bind("click",{ele:$(this)},bindParLiClick);
 		});
 		
 		// 4. sub li bind click
@@ -85,38 +86,36 @@ function initParAndSubLi(jsonList, parDivId, subDivId){
 	
 }
 
-function initSelLi(selDivId){
+function ajaxSel(selDivId){
+	
+}
+
+function initSelLi(jsons,selDivId){
 
 	//TODO ajax get selSPs instead of dummy
 	var selStr = "";
 	selStr += "<ul class='inline' id='selUl'>";
-	$.each(dummySelSPJson,function(i,sp){
-		selStr = selStr + "<li ><a class='btn btn-warning' id='sel_" + i + "' uid='" + sp.id + "'>" + sp.name + "</a></li>";
+	
+	$.each(jsons,function(i,sp){
+		selStr = selStr + "<li ><a class='btn btn-warning' id='sel_" + sp.id + "'>" + sp.name + "</a></li>";
 	});
 	selStr += "</ul>";
 	$("#" + selDivId).html(selStr);
+	
 
-	//bind click for selli
 	$("a[id^='sel_']").each(function(){
+		//sync sel and sub
+		var uid = $(this).attr('id').split('_')[1];
+		$("#sub_" + uid).attr('class','btn-small btn-warning sub');
+		
+		//bind click for selli
 		$(this).bind("click",{ele:$(this)},bindSelLiClick);
 	});
 
 }
 function bindParLiClick(event){
-	var parId = event.data.id;
-	//change par css
-	$("a[id^='par_']").each(function(){
-		$(this).attr('class','btn btn-info par');
-	});
-	$("#" + parId).attr('class','btn btn-primary par');
-	
-	// show/hide sub ul
-	var i = parId.split('_')[1];
-	$("ul[id^='ul_']").each(function(){
-		$(this).hide();
-	});
-	$("#ul_" + i).show();
-	
+	var $par = event.data.ele;
+	changeParAndSub($par);
 }
 
 function bindSubLiClick(event){
@@ -127,16 +126,37 @@ function bindSubLiClick(event){
 	
 }
 function bindSelLiClick(event){
-	var $del = event.data.ele;
-	selectOrDeSelectSP(dummySelSPJson, false, $("a[uid='" + $del.uid +"']"), $del, $("#selUl"));
+	var $sel = event.data.ele;
+	var uid = $sel.attr('id').split('_')[1];
+	var $sub = $("#sub_" + uid);
+	selectOrDeSelectSP(dummySelSPJson, false, $sub, $sel, $("#selUl"));
+}
+
+function changeParAndSub($par){
+	//change par css
+	$("a[id^='par_']").each(function(){
+		$(this).attr('class','btn btn-info par');
+	});
+	$par.attr('class','btn btn-primary par');
+	
+	// show/hide sub ul
+	var i = $par.attr('id').split('_')[1];
+	$("ul[id^='ul_']").each(function(){
+		$(this).hide();
+	});
+	$("#ul_" + i).show();
 }
 
 function selectOrDeSelectSP(jsons,isSelect, $subSP, $selSP, $selUl){
 	if (isSelect) {
 		var isExsited = false;
 		// check if select sp is exsited in selSPJson
+		var uid = $subSP.attr('id').split('_')[1];
+		if(jsons.length >= 8){
+			return;
+		}
 		for(var i = 0; i < jsons.length; i++ ){
-			if ($subSP.attr('uid') == jsons[i].id) {
+			if (uid == jsons[i].id) {
 				isExsited = true;
 				break;
 			}
@@ -144,15 +164,18 @@ function selectOrDeSelectSP(jsons,isSelect, $subSP, $selSP, $selUl){
 
 		if(!isExsited){
 			// add sp in selSPJson
-			var newSelSP = {"id":$subSP.attr('uid'),"name":$subSP.html()};
+			var newSelSP = {"id":uid,"name":$subSP.html()};
 			jsons.push(newSelSP);
 			// add <li><a> in selDIv ul
-			var newSelSPStr = "<li ><a class='btn btn-warning' uid='" + newSelSP.id + "'>" + newSelSP.name + "</a></li>"
+			var newSelSPStr = "<li ><a class='btn btn-warning' id='sel_" + newSelSP.id + "'>" + newSelSP.name + "</a></li>"
 			var oriHtml = $selUl.html();
 			$selUl.html(oriHtml + newSelSPStr);
 
 			//bind click event for new selSP
-			$("a[uid='" + newSelSP.id + "']").live("click",{ele:$(this)},bindSelLiClick);
+			//$("#sel_" + newSelSP.id ).on("click",{ele:$("#sel_" + newSelSP.id)},bindSelLiClick);
+			$("a[id^='sel_']").each(function(){
+				$(this).bind("click",{ele:$(this)},bindSelLiClick);
+			});
 
 			// change css
 			$subSP.attr('class','btn-small btn-warning sub');
@@ -160,18 +183,24 @@ function selectOrDeSelectSP(jsons,isSelect, $subSP, $selSP, $selUl){
 		}
 	}else{
 		// remove sp in selSPJson
+		var uid = $selSP.attr('id').split('_')[1];
 		for(var i = 0; i < jsons.length; i++ ){
-			if ($selSP.attr('uid') == jsons[i].id) {
-				jsons.splice(i);
+			if (uid == jsons[i].id) {
+				jsons.splice(i,1);
 				break;
 			}
 		}
 
 		// remove <li><a> in selDIv ul
-		$selSP.remove();
+		$selSP.parent().remove();
+		//$selSP.remove();
 
 		// change css
 		$subSP.attr('class','btn-small btn-link sub');
 		$subSP.attr('et','');
 	}
+}
+
+function syncSubAndSel(){
+	
 }
