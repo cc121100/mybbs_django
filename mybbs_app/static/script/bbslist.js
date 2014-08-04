@@ -13,13 +13,8 @@ var selSPJsons = new Array();
 function befShow(parDivId, subDivId,selDivId){
 	if(isFirst){
 		ajaxSPCate(parDivId,subDivId,selDivId,initParAndSubLi);
-		
-		/*initSelLi(selSPJsons,selDivId);*/
-		
 		isFirst = false;
 	}else{
-		/*initParAndSubLiCall(spCateJsons, parDivId, subDivId);
-		initSelLi(selSPJsons,selDivId);*/
 		
 	}
 }
@@ -337,4 +332,23 @@ function nextClick(id){
 		 //update div_list's attr(curp)
 		 $("#" + div_list_id).attr("curp",curp);
 	 }
+}
+
+function uptsp(){
+	var newsps = new Array();
+	for(var i = 0 ;i < selSPJsons.length; i ++){
+		newsps.push(selSPJsons[i].id);
+	}
+	$.ajax({
+        type:"POST" ,
+        url:"/uptsp",
+        data:{'newsps':newsps},
+        cache: false,
+        success: function(result){
+            alert('success');
+        },
+        error:function(result){
+     	   alert("error");
+        }
+  });
 }

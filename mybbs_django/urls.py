@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(r'^index$', index_view),
     url(r'^list$', default_list_view),
     url(r'^cateSP$', category_sp_view),
-    url(r'^us$', update_us_view),
+    url(r'^uptsp', update_us_view),
 )
 
 

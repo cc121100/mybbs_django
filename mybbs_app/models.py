@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib import admin
 from uuidfield import UUIDField
-#from compositekey import db
-
-# Create your models here.
 
 STATUS_CHOICES = (
         ('A', 'Active'),
@@ -63,7 +60,7 @@ class UserSetting(BaseModel):
     category = models.CharField(max_length=255, db_column = 'category', choices = USER_SETTING_CATEGORY, default='D')
     #sourcePages = models.ManyToManyField('SourcePage', db_table='tbl_setting_to_source_page',related_name='setting_id')
     sourcePages = models.ManyToManyField('SourcePage',through='UserSettingToSourcePage')
-    ipAddr = models.CharField(max_length=15, db_column = 'ip_addr')
+    ipAddr = models.CharField(max_length=15, db_column = 'ip_addr',blank = True,null = True)
     
     class Meta:
         db_table = 'tbl_user_setting'

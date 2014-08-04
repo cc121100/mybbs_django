@@ -24,39 +24,43 @@ def default_list_view(request):
     
     #aip = request.GET['aip']
     #print'aip %s' % aip
-    
-    ip = getIpAddr(request)
-    print'ip %s' % ip
-    
-    # get usersetting by ip addr
-    # if not exsited return default sp
-    # if exsited return user serrting sp
-    us = None
-    us = UserSetting.objects.get(ipAddr = ip)
-    if us is None:
-        us = UserSetting.objects.get(category='D')
-    
-    sourcePages = us.sourcePages.all()
-    jsons = []
-    for sp in sourcePages:
-        #print 'sp id is %s' % sp.id
-        url = URL_FILE_PREFIX + str(sp.id) + URL_FILE_SUFFIX
-        linkStr = ''
-        json = {}
-        #print 'logo is %s' %sp.sampleSourcePage.logo
+    try:
+        ip = getIpAddr(request)
+        print'ip %s' % ip
         
-        with open(url , 'r') as f:
-            for line in f.readlines():
-                linkStr = linkStr + line.strip() + '|_|'
+        # get usersetting by ip addr
+        # if not exsited return default sp
+        # if exsited return user serrting sp
+        us = None
+        us = UserSetting.objects.get(ipAddr = ip)
+        if us is None:
+            us = UserSetting.objects.get(category='D')
         
-        json['id'] = str(sp.id)
-        json['name'] = str(sp.targetPageName)
-        json['url'] = sp.targetPageUrl
-        json['logo'] = str(sp.sampleSourcePage.logo)
-        json['links'] = linkStr
-        jsons.append(json)
-        
-    result = simplejson.dumps(jsons, ensure_ascii=False)
+        sourcePages = us.sourcePages.all()
+        jsons = []
+        for sp in sourcePages:
+            #print 'sp id is %s' % sp.id
+            url = URL_FILE_PREFIX + str(sp.id) + URL_FILE_SUFFIX
+            linkStr = ''
+            json = {}
+            #print 'logo is %s' %sp.sampleSourcePage.logo
+            
+            with open(url , 'r') as f:
+                for line in f.readlines():
+                    linkStr = linkStr + line.strip() + '|_|'
+            
+            json['id'] = str(sp.id)
+            json['name'] = str(sp.targetPageName)
+            json['url'] = sp.targetPageUrl
+            json['logo'] = str(sp.sampleSourcePage.logo)
+            json['links'] = linkStr
+            jsons.append(json)
+            
+        result = simplejson.dumps(jsons, ensure_ascii=False)
+    except:
+        info=sys.exc_info()
+        print info[0],":",info[1]
+        #TODO log
 
     return HttpResponse(result)
 
