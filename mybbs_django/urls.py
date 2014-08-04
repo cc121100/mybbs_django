@@ -15,9 +15,10 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^index/$', index_view),
-    url(r'^list/default/$', default_list_view),
-    url(r'^cateSP/$', category_sp_view),
+    url(r'^index$', index_view),
+    url(r'^list$', default_list_view),
+    url(r'^cateSP$', category_sp_view),
+    url(r'^us$', update_us_view),
 )
 
 

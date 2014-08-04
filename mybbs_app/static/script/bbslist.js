@@ -1,24 +1,25 @@
+var pageSize = 8;
 var isFirst = true;
 var spCateJsons;
 var selSPs;
-/*var dummySelSPJson = [
+/*var selSPJsons = [
 						{"id":"4028819d474d2df401474d2e01440014","name":"简书 - 首页"},
 					  	{"id":"4028819d475166e9014751670e680000","name":"天涯 - 天涯杂谈"},
 					  	{"id":"4028819d474d2df401474d2e0111000c","name":"天涯 - 热帖"}
 					 ];*/
-var dummySelSPJson = new Array();
+var selSPJsons = new Array();
 
 
 function befShow(parDivId, subDivId,selDivId){
 	if(isFirst){
 		ajaxSPCate(parDivId,subDivId,selDivId,initParAndSubLi);
 		
-		/*initSelLi(dummySelSPJson,selDivId);*/
+		/*initSelLi(selSPJsons,selDivId);*/
 		
 		isFirst = false;
 	}else{
 		/*initParAndSubLiCall(spCateJsons, parDivId, subDivId);
-		initSelLi(dummySelSPJson,selDivId);*/
+		initSelLi(selSPJsons,selDivId);*/
 		
 	}
 }
@@ -34,7 +35,7 @@ function ajaxSPCate(parDivId, subDivId,selDivId, initParAndSubLiCall){
         	jsonList=eval('('+result+')');
         	spCateJsons = jsonList;
         	initParAndSubLiCall(spCateJsons, parDivId, subDivId);
-        	initSelLi(dummySelSPJson,selDivId);
+        	initSelLi(selSPJsons,selDivId);
         },
         error:function(result){
         	alert("error when initSPCate");
@@ -86,10 +87,6 @@ function initParAndSubLi(jsonList, parDivId, subDivId){
 	
 }
 
-function ajaxSel(selDivId){
-	
-}
-
 function initSelLi(jsons,selDivId){
 
 	//TODO ajax get selSPs instead of dummy
@@ -97,7 +94,7 @@ function initSelLi(jsons,selDivId){
 	selStr += "<ul class='inline' id='selUl'>";
 	
 	$.each(jsons,function(i,sp){
-		selStr = selStr + "<li ><a class='btn btn-warning' id='sel_" + sp.id + "'>" + sp.name + "</a></li>";
+		selStr = selStr + "<li ><a class='btn-small btn-warning' id='sel_" + sp.id + "'>" + sp.name + "</a></li>";
 	});
 	selStr += "</ul>";
 	$("#" + selDivId).html(selStr);
@@ -121,7 +118,7 @@ function bindParLiClick(event){
 function bindSubLiClick(event){
 	var $sub = event.data.ele;
 	if($sub.attr('et') != 'e'){
-		selectOrDeSelectSP(dummySelSPJson, true, $sub, null, $("#selUl"));
+		selectOrDeSelectSP(selSPJsons, true, $sub, null, $("#selUl"));
 	}
 	
 }
@@ -129,7 +126,7 @@ function bindSelLiClick(event){
 	var $sel = event.data.ele;
 	var uid = $sel.attr('id').split('_')[1];
 	var $sub = $("#sub_" + uid);
-	selectOrDeSelectSP(dummySelSPJson, false, $sub, $sel, $("#selUl"));
+	selectOrDeSelectSP(selSPJsons, false, $sub, $sel, $("#selUl"));
 }
 
 function changeParAndSub($par){
@@ -167,7 +164,7 @@ function selectOrDeSelectSP(jsons,isSelect, $subSP, $selSP, $selUl){
 			var newSelSP = {"id":uid,"name":$subSP.html()};
 			jsons.push(newSelSP);
 			// add <li><a> in selDIv ul
-			var newSelSPStr = "<li ><a class='btn btn-warning' id='sel_" + newSelSP.id + "'>" + newSelSP.name + "</a></li>"
+			var newSelSPStr = "<li ><a class='btn-small btn-warning' id='sel_" + newSelSP.id + "'>" + newSelSP.name + "</a></li>"
 			var oriHtml = $selUl.html();
 			$selUl.html(oriHtml + newSelSPStr);
 
@@ -201,6 +198,143 @@ function selectOrDeSelectSP(jsons,isSelect, $subSP, $selSP, $selUl){
 	}
 }
 
-function syncSubAndSel(){
-	
+function loadbbslist(){
+	$.ajax({
+        type:"GET" ,
+        url:"/list",
+        //data:"aip=" + ILData[0] ,
+        cache: false,
+        success: function(result){
+            
+            //clean div_list
+            $("#div_list1").html('');
+            $("#div_list2").html('');
+            $("#div_list3").html('');
+            
+            generateList(result);
+            
+        },
+        error:function(result){
+     	   alert("error");
+        }
+  });
+}
+
+function generateList(result){
+	var bbss = eval('(' + result + ')');
+    $.each(bbss,function(i,bbs){
+       var newSelSP = {"id":bbs.id,"name":bbs.name};
+       selSPJsons.push(newSelSP);
+  	   var links = bbs.links.split('|_|');
+       var totalp = 0;
+  	   if(links.length % pageSize == 0 ){
+  		 totalp = Math.floor((links.length / pageSize));
+  	   }else{
+  		 totalp = Math.floor((links.length / pageSize) + 1);
+  	   }
+ 	   //alert(bbs.name);
+ 	   var str = '';
+ 	   str += "<br/><div class='row'>";
+ 	   str = str + "<article class='span11 post'>"
+   	   	 + "<div class='inside'>"
+   	   	 + "<p class='bbs-title'><a href='" + bbs.url + "' target='_blank'> <img class='img-rounded' src='/media/" + bbs.logo + "' alt=''/></a>&nbsp;&nbsp;" + bbs.name + "<p>"
+  		 + "<div class='entry-content' id='div_list_" + i + "' curp='1' totalp='" + totalp + "'>";
+ 	   
+ 	   for(var j = 1;j <= totalp; j++ ){
+ 		 if(j == 1){
+     		 str = str + "<table class='table' id='tb_" + i + "_" + j + "'>";
+ 		 }else{
+     		 str = str + "<table class='table' id='tb_" + i + "_" + j + "' style='display:none;'>";
+ 		 }
+ 		 var from = (j-1) * pageSize;
+ 		 var to;
+ 		 if(j == totalp){
+ 			to = links.length - 1;
+ 		 }else{
+ 			to = j * pageSize;
+ 		 }
+ 		 for(var k = from; k < to; k++){
+ 			 str = str + "<tr><td>"
+ 			           + links[k]
+	   	               + "</td></tr>";
+ 		 }
+ 		 str = str + "</table>";
+ 	   }
+ 	   
+ 	   str = str + "<div class='pagination pagination-right'>"
+ 	   			 + "<ul>"
+ 	   			 + "<li class=''><a id='pre_" + i + "' class='btn_pre' onclick='previousClick(this.id);'>前一页</a></li>"
+ 	   			 + "<li class=''><a id='next_" + i + "' class='btn_next' onclick='nextClick(this.id);'>后一页</a></li>"
+ 	   			 + "</ul>"
+ 	   			 + "</div>";
+ 	   str = str + "</div>"
+		   	 + "</div>"
+		   	 + "</article>";
+		   	 + "</div>";
+	   var content = '';
+	   if((i+1) % 3 == 1 ){
+		   content = $("#div_list1").html();
+		   $("#div_list1").html(content + str);
+	   }else if((i+1) % 3 == 2){
+		   content = $("#div_list2").html();
+		   $("#div_list2").html(content + str);
+	   }else if((i+1) % 3 == 0){
+		   content = $("#div_list3").html();
+		   $("#div_list3").html(content + str);
+	   }
+    });
+}
+ 
+function previousClick(id){
+	 var div_id = id.split('_')[1];
+	 var div_list_id = 'div_list_' + div_id;
+	 var curp ;
+	 var totalp;
+	 try{
+		 curp = parseInt($("#" + div_list_id).attr("curp")); 
+		 totalp = parseInt($("#" + div_list_id).attr("totalp")); 
+	 }catch(e){
+		 curp = 1;
+		 totalp = 1;
+	 }
+	 if(curp <= 1){
+		 
+	 }else{
+		// hide current table
+		 $("#tb_" + div_id + "_" + curp).hide();
+		 
+		 //show previous table
+		 curp -= 1;
+		 $("#tb_" + div_id + "_" + curp).show();
+		 
+		 //update div_list's attr(curp)
+		 $("#" + div_list_id).attr("curp",curp);
+	 }
+ }
+ 
+function nextClick(id){
+	 var div_id = id.split('_')[1];
+	 var div_list_id = 'div_list_' + div_id;
+	 var curp ;
+	 var totalp;
+	 try{
+		 curp = parseInt($("#" + div_list_id).attr("curp")); 
+		 totalp = parseInt($("#" + div_list_id).attr("totalp")); 
+	 }catch(e){
+		 curp = 1;
+		 totalp = 1;
+	 }
+	 if(curp >= totalp){
+		 
+	 }else{
+		 // hide current table
+		 $("#tb_" + div_id + "_" + curp).hide();
+		 
+		 //show next table
+		 curp += 1;
+		 $("#tb_" + div_id + "_" + curp).show();
+		 
+		 //update div_list's attr(curp)
+		 $("#" + div_list_id).attr("curp",curp);
+	 }
 }
