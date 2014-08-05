@@ -217,9 +217,11 @@ function loadbbslist(){
 
 function generateList(result){
 	var bbss = eval('(' + result + ')');
-    $.each(bbss,function(i,bbs){
-       var newSelSP = {"id":bbs.id,"name":bbs.name};
-       selSPJsons.push(newSelSP);
+    $.each(bbss.list,function(i,bbs){
+       if(isFirst &&　bbss.c == 'U'){
+    	   var newSelSP = {"id":bbs.id,"name":bbs.name};
+    	   selSPJsons.push(newSelSP);
+       }
   	   var links = bbs.links.split('|_|');
        var totalp = 0;
   	   if(links.length % pageSize == 0 ){
@@ -335,6 +337,7 @@ function nextClick(id){
 }
 
 function uptsp(){
+	$('#btnUpt').button('loading');
 	var newsps = new Array();
 	for(var i = 0 ;i < selSPJsons.length; i ++){
 		newsps.push(selSPJsons[i].id);
@@ -346,9 +349,13 @@ function uptsp(){
         cache: false,
         success: function(result){
             alert('success');
+            $('#btnUpt').button('reset');
+            $('#selectSPDiv').modal('hide');
+            loadbbslist();
         },
         error:function(result){
      	   alert("error");
+     	   $('#btnUpt').button('reset');
         }
   });
 }

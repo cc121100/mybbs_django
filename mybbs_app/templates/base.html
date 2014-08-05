@@ -121,10 +121,10 @@
       </div>
 	  <div class="modal-footer">
 	  	<span style="font-size:12px;margin-right: 10px;">最多可选择8个论坛</span>
-    	<button class="btn-small" data-dismiss="modal" aria-hidden="true">关闭</button>
-    	<button class="btn-small" onclick="uptsp();">定制</button>
+    	<button id="btnUpt" class="btn-small" data-loading-text="定制中..." onclick="uptsp();">定制</button>
+    	<button id="btnModalClose" class="btn-small" data-dismiss="modal" aria-hidden="true">关闭</button>
 	  </div>
 	</div>
-    
+    {% csrf_token %}
     </body>
     </html>
