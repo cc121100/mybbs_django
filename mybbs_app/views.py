@@ -5,8 +5,10 @@ from django.template import loader,Context
 from django.http import HttpResponse
 from mybbs_app.models import UserSetting,SourcePage,UserSettingToSourcePage
 import initapp
+import stomutil
 from django.utils import simplejson 
 from django.views.decorators.csrf import csrf_exempt
+import uuid
 
 # Create your views here.  
 reload(sys)
@@ -19,21 +21,30 @@ URL_FILE_SUFFIX = '.urls'
 def index_view(request):
     t = loader.get_template('bbslist.html')
     c = Context({'persons':'aa'})
-    return HttpResponse(t.render(c))
+    httpResponse = HttpResponse(t.render(c))
+    try:
+        if "tcd" in request.COOKIES:
+            pass
+        else:
+            httpResponse.set_cookie("tcd", value = str(uuid.uuid1()).replace('-',''))
+        
+    except:
+        info=sys.exc_info()
+        print info[0],":",info[1]
+
+    return httpResponse
 
 def list_view(request):
-    
-    #aip = request.GET['aip']
-    #print'aip %s' % aip
     try:
-        ip = getIpAddr(request)
-        print'ip %s' % ip
+        tcd = ''
+        if "tcd" in request.COOKIES:
+            tcd = request.COOKIES["tcd"]
         
         # get usersetting by ip addr
         # if not exsited return default sp
         # if exsited return user serrting sp
         uss = None
-        uss = UserSetting.objects.filter(ipAddr = ip)
+        uss = UserSetting.objects.filter(tempCookieId = tcd,category='U')
         if uss is None or len(uss) < 1:
             us = UserSetting.objects.get(category='D')
         else:
@@ -75,31 +86,30 @@ def user_list_view(request):
     pass
 
 def category_sp_view(request):
-    #json = {}
-    #json['spCateJsons',initapp.SPCategoryJsons]
-    
     result = simplejson.dumps(initapp.SPCategoryJsons, ensure_ascii=False)
     return HttpResponse(result)
 
 @csrf_exempt
 def update_us_view(request):
     try:
+        httpResponse = HttpResponse('')
         if request.method == 'GET':
-            return HttpResponse('')
+            return httpResponse
         elif request.method == 'POST':
             newspIds = request.POST.getlist('newsps[]')
-            if newspIds is not None:
-                for newsp in newspIds:
-                    print('sp id is %s') % newsp
-                
-            ip = getIpAddr(request)
             
-            uss = UserSetting.objects.filter(ipAddr = ip)
+            tcd = ''    
+            if "tcd" in request.COOKIES:
+                tcd = request.COOKIES["tcd"]
+            
+            if tcd is None or len(tcd) < 1:
+                tcd = str(uuid.uuid1()).replace('-','')
+            
+            uss = UserSetting.objects.filter(tempCookieId = tcd,category='U')
             if uss is None or len(uss) < 1:
                 # add us 
                 # add all sp for us
-                newUS = UserSetting(name= ip + ' us', category='U', ipAddr=ip)
-                #newUS.sourcePages = getSPByIds(newsps)
+                newUS = UserSetting(name= getIpAddr(request) + ' us', category='U', tempCookieId=tcd)
                 newUS.save()
                 
                 addUSToSP(newUS, newspIds)
@@ -113,7 +123,12 @@ def update_us_view(request):
                     # delete old and add new
                     UserSettingToSourcePage.objects.filter(userSettings=us).delete()
                     addUSToSP(us, newspIds)
-            return HttpResponse('')
+                    
+            stomutil.sendMsg(tcd)
+                    
+            httpResponse.set_cookie("tcd", value = tcd, max_age = 60 * 60 * 24 * 30)
+            
+            return httpResponse
     except:
         info=sys.exc_info()
         print info[0],":",info[1]
@@ -129,5 +144,4 @@ def addUSToSP(us,spIds):
     for sp in sps:
         us_sp = UserSettingToSourcePage(userSettings = us,sourcePages = sp)
         us_sp.save()
-    #return SourcePage.objects.filter(id__in=ids)
     

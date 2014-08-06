@@ -60,7 +60,7 @@ class UserSetting(BaseModel):
     category = models.CharField(max_length=255, db_column = 'category', choices = USER_SETTING_CATEGORY, default='D')
     #sourcePages = models.ManyToManyField('SourcePage', db_table='tbl_setting_to_source_page',related_name='setting_id')
     sourcePages = models.ManyToManyField('SourcePage',through='UserSettingToSourcePage')
-    ipAddr = models.CharField(max_length=15, db_column = 'ip_addr',blank = True,null = True)
+    tempCookieId = models.CharField(max_length=32, db_column = 'temp_cookie_id',blank = True,null = True)
     
     class Meta:
         db_table = 'tbl_user_setting'
@@ -181,8 +181,8 @@ class FilterAdmin(admin.ModelAdmin):
     fields  = ('filterName','filterClassName','filterClassParams','paramType','paramNum','setParamMethodName')
     
 class UserSettingAdmin(admin.ModelAdmin):
-    list_display = ('name','category','ipAddr')
-    fields  = ('name','category','ipAddr')
+    list_display = ('name','category','tempCookieId')
+    fields  = ('name','category','tempCookieId')
     inlines = (UserSettingInline,)
     
 class SourcePageAdmin(admin.ModelAdmin):
