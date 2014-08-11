@@ -9,6 +9,7 @@ import stomutil
 from django.utils import simplejson 
 from django.views.decorators.csrf import csrf_exempt
 import uuid
+import time
 
 # Create your views here.  
 reload(sys)
@@ -24,7 +25,8 @@ def index_view(request):
     httpResponse = HttpResponse(t.render(c))
     try:
         if "tcd" in request.COOKIES:
-            pass
+            tcd = request.COOKIES["tcd"]
+            sendMsg(tcd,int(round(time.time() * 1000)))
         else:
             httpResponse.set_cookie("tcd", value = str(uuid.uuid1()).replace('-',''))
         
@@ -91,8 +93,8 @@ def category_sp_view(request):
 
 @csrf_exempt
 def update_us_view(request):
+    httpResponse = HttpResponse('')
     try:
-        httpResponse = HttpResponse('')
         if request.method == 'GET':
             return httpResponse
         elif request.method == 'POST':
@@ -123,15 +125,15 @@ def update_us_view(request):
                     # delete old and add new
                     UserSettingToSourcePage.objects.filter(userSettings=us).delete()
                     addUSToSP(us, newspIds)
-                    
-            stomutil.sendMsg(tcd)
+            
+            sendMsg(tcd,int(round(time.time() * 1000)))
                     
             httpResponse.set_cookie("tcd", value = tcd, max_age = 60 * 60 * 24 * 30)
             
-            return httpResponse
     except:
         info=sys.exc_info()
         print info[0],":",info[1]
+    return httpResponse
         
 def getIpAddr(request):
     if request.META.has_key('HTTP_X_FORWARDED_FOR'):  
@@ -144,4 +146,8 @@ def addUSToSP(us,spIds):
     for sp in sps:
         us_sp = UserSettingToSourcePage(userSettings = us,sourcePages = sp)
         us_sp.save()
+
+def sendMsg(tcd,timestap):
+    msg = {'tcd':tcd,'visitedTime':timestap}
+    stomutil.sendMsg(msg)
     

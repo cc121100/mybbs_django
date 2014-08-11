@@ -211,6 +211,12 @@ function loadbbslist(){
         },
         error:function(result){
      	   alert("error");
+        },
+        beforeSend:function(r){
+        	//$('#loadingDiv').modal('show');6371 1467
+        },
+        complete:function(r){
+        	//$('#loadingDiv').modal('hide');
         }
   });
 }
@@ -225,7 +231,7 @@ function generateList(result){
   	   var links = bbs.links.split('|_|');
        var totalp = 0;
   	   if(links.length % pageSize == 0 ){
-  		 totalp = Math.floor((links.length / pageSize));
+  		 totalp = links.length / pageSize;
   	   }else{
   		 totalp = Math.floor((links.length / pageSize) + 1);
   	   }
